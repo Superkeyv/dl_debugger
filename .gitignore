@@ -1,0 +1,8 @@
+build
+
+# cache file
+**/__pycache__
+
+
+# IDE
+.vscode
