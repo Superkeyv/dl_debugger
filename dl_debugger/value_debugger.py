@@ -25,7 +25,7 @@ __recursion_check_tensor_isfinite = partial(
 
 HM = HookManager('inf nan check')
 
-def check_model_forward_infinite(model: nn.Module, only_require_grad:bool=False):
+def check_model_forward_infinite(model: nn.Module, only_training_module:bool=False):
     """ check nan/inf appear at infer stage and print stack info.
     
     >>> model = ResNet50(...)
@@ -34,7 +34,7 @@ def check_model_forward_infinite(model: nn.Module, only_require_grad:bool=False)
     """
 
     def __hook_check_isfinite(module, input_) -> None:
-        if only_require_grad and not (
+        if only_training_module and not (
             module.training and torch.is_grad_enabled()
         ):
             return

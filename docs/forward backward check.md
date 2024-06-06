@@ -25,9 +25,9 @@ from dl_debugger.autograd_debugger import register_fwd_hook, register_bwd_hook
 model = MTransformer(64, 512)
 
 # 注册前向、反向传播 hook，这里使用正则表达式过滤要注册的模块
-# skip_act_recomp 参数，用于兼容激活重算，避免重复记录模块输出
+# only_training_module 参数，用于兼容激活重算，避免重复记录模块输出
 pattern = r"*.encoder.*.attention.*"
-register_fwd_hook(model, pattern=pattern, skip_act_recomp=True)
+register_fwd_hook(model, pattern=pattern, only_training_module=True)
 register_bwd_hook(model, pattern=pattern)
 
 

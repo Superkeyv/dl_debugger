@@ -10,11 +10,11 @@ from .utils import logger, HookManager, any_to_str
 def register_fwd_hook(model:torch.nn.Module,
                       pattern:str='.*',
                       filename:str='fwd_hook',
-                      skip_act_recomp=False):
+                      only_training_module=False):
     hm = HookManager(filename)
 
     def fwd_hook(name, module, args, kwargs, output):
-        if skip_act_recomp and not (
+        if only_training_module and not (
             module.training and torch.is_grad_enabled()
         ):
             return

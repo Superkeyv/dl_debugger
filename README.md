@@ -23,7 +23,7 @@ python setup.py install
 # 获取 异常值检测器
 from dl_debugger.assert_value import check_model_forward_infinite
 
-model = MTransformer(64, 512)
+model = GPT2()
 # insert hooks
 check_model_forward_infinite(model)
 ```
