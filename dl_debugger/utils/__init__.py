@@ -1,5 +1,5 @@
 from .data_struct import ListTuple, nested_merge, nested_check_tensor
-from .dump_file import allocate_table, get_my_dump_folder, append_row_to_table
+from .dump_file import allocate_table, get_dump_folder, append_row_to_table
 from .hooks_manager import HookManager
 from .logging import logger
 from .reproducible import reproducible_init_method

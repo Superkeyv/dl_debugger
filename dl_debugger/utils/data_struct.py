@@ -60,9 +60,6 @@ def nested_check_tensor(value, fn: Callable):
     if isinstance(value, Tensor):
         return fn(value)
 
-    if isinstance(value, str):
-        return False
-
     if isinstance(value, ListTuple):
         flag = False
         for v in value:
@@ -75,7 +72,7 @@ def nested_check_tensor(value, fn: Callable):
             flag |= nested_check_tensor(v, fn)
         return flag
 
-    raise TypeError("Unsupported type")
+    return False
 
 
 def flatten_nested_tensor_feat(obj, detail:bool=False) -> Dict[str, Any]:

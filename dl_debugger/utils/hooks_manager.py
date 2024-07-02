@@ -8,7 +8,7 @@ from typing import Any, Dict
 
 from .config import DLSAN_DUMP_RAW_TENSOR, DLSAN_DUMP_TENSOR_DETAIL
 from .data_struct import flatten_nested_tensor_feat, flatten_nested_tensor_cpu
-from .dump_file import append_row_to_table, allocate_table, get_my_dump_folder
+from .dump_file import append_row_to_table, allocate_table, get_dump_folder
 from .logging import logger
 
 
@@ -59,8 +59,8 @@ class HookManager:
 
         row = {name: value}
         if DLSAN_DUMP_RAW_TENSOR:
-            # save inline to save memory
-            dump_folder = get_my_dump_folder()
+            dump_folder = get_dump_folder()
+            assert dump_folder
             hit_count = self._hit_name[name]
             row = flatten_nested_tensor_cpu(row)
             with open(dump_folder / f'{hit_count}.{self.name}.{name}.pkl',

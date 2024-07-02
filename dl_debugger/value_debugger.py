@@ -16,7 +16,7 @@ def __all_is(x: torch.Tensor, fn: Callable):
     return fn(x).any().item()
     
 
-__is_inf_or_nan = partial(__all_is, fn=torch.isfinite)
+__is_inf_or_nan = partial(__all_is, fn=torch.isnan)
 
 __recursion_check_tensor_isfinite = partial(
     nested_check_tensor, fn=partial(
@@ -56,7 +56,7 @@ def check_model_forward_infinite(model: nn.Module, only_training_module:bool=Fal
                              stacklevel=2)
                 sys.exit(1)
         else:
-            if __recursion_check_tensor_isfinite(input_):
+            if not __recursion_check_tensor_isfinite(input_):
                 logger.debug('in-param with [inf/nan]',
                             stack_info=True,
                             stacklevel=2)

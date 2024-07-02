@@ -12,7 +12,7 @@ from collections import defaultdict
 from pathlib import Path
 from pyarrow import parquet as pq
 from torch import Tensor
-from typing import Dict, List
+from typing import Callable, Dict, List
 
 from .config import DLSAN_DUMP_DIR
 from .logging import logger
@@ -20,11 +20,9 @@ from .logging import logger
 
 _RANK = int(os.environ.get('RANK', -1))
 _DUMP_DIR = None
-logger.info(f' dlsan_dump output path: {DLSAN_DUMP_DIR}')
 
-
-_start_time = datetime.datetime.now(pytz.timezone('Asia/Shanghai')
-                                    ).strftime("%Y%m%d-%H%M%S")
+_start_time = datetime.datetime.now(
+    pytz.timezone('Asia/Shanghai')).strftime("%Y%m%d-%H%M%S")
 
 
 # define table dtype
@@ -32,20 +30,25 @@ table_dtype = Dict[str, List[float]]
 _tables: Dict[str, table_dtype] = {}
 
 
-def get_my_dump_folder(mid_name:callable=lambda: None):
+def get_dump_folder(mid_name:Callable=lambda: None):
     global _DUMP_DIR, _RANK
+    if DLSAN_DUMP_DIR is None:
+        # skip save dir
+        return None
+
     if _DUMP_DIR is not None:
         return _DUMP_DIR
     
     _common_path = Path(DLSAN_DUMP_DIR)
+    _common_path.mkdir(parents=True, exist_ok=True)
+    logger.info(f' dlsan_dump output path: {_common_path}')
+
     _my_folder = f'{_start_time}-rk{_RANK}'
     _mid_basename = mid_name()
     if _mid_basename:
         _my_folder += str(_mid_basename)
 
     _DUMP_DIR = _common_path / _my_folder
-    if not os.path.exists(DLSAN_DUMP_DIR):
-        os.makedirs(DLSAN_DUMP_DIR, exist_ok=True)
     
     return _DUMP_DIR
 
@@ -112,6 +115,9 @@ def _save_tables(tables:dict, filepath):
 
 @atexit.register
 def _save_at_exit():
-    dump_folder = get_my_dump_folder()
+    dump_folder = get_dump_folder()
+    if dump_folder is None:
+        return
+    
     logger.info(' dump saved data to path: %s', dump_folder)
     _save_tables(_tables, dump_folder)
