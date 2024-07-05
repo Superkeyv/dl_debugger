@@ -4,25 +4,28 @@ import sys
 import torch
 import torch.nn as nn
 
-from collections.abc import Mapping, Callable
+from collections.abc import Mapping
 from functools import partial
 
-from .utils import logger, nested_check_tensor, HookManager, ListTuple
+from .utils import (
+    HookManager, ListTuple, logger,
+    check_nested_tensor_any, check_nested_tensor_all,
+)
 
 
-def __all_is(x: torch.Tensor, fn: Callable):
-    assert fn in [torch.isfinite, torch.isnan, torch.isinf, 
-                  torch.isposinf, torch.isneginf, torch.isreal]
-    return fn(x).any().item()
-    
+################## define some basic op ##################
+isnan = lambda x: torch.isnan(x).any().item()
+isfinite = lambda x: torch.isfinite(x).any().item()
 
-__is_inf_or_nan = partial(__all_is, fn=torch.isnan)
+check_nested_tensor_any_isnan = partial(
+    check_nested_tensor_any, fn=isnan
+)
+check_nested_tensor_all_isfinite = partial(
+    check_nested_tensor_all, fn=isfinite
+)
 
-__recursion_check_tensor_isfinite = partial(
-    nested_check_tensor, fn=partial(
-        __all_is, fn=torch.isfinite))
 
-
+################## define value check hook manager ##################
 HM = HookManager('inf nan check')
 
 def check_model_forward_infinite(model: nn.Module, only_training_module:bool=False):
@@ -41,7 +44,7 @@ def check_model_forward_infinite(model: nn.Module, only_training_module:bool=Fal
         
         if isinstance(input_, ListTuple):
             for i, v in enumerate(input_):
-                if not __recursion_check_tensor_isfinite(v):
+                if check_nested_tensor_any_isnan(v):
                     continue
                 logger.debug('in-param [%d] with [inf/nan]', i,
                              stack_info=True,
@@ -49,14 +52,14 @@ def check_model_forward_infinite(model: nn.Module, only_training_module:bool=Fal
                 sys.exit(1)
         if isinstance(input_, Mapping):
             for k, v in input_.items():
-                if not __recursion_check_tensor_isfinite(v):
+                if check_nested_tensor_any_isnan(v):
                     continue
                 logger.debug('in-param [%s] with [inf/nan]', k,
                              stack_info=True,
                              stacklevel=2)
                 sys.exit(1)
         else:
-            if not __recursion_check_tensor_isfinite(input_):
+            if check_nested_tensor_any_isnan(input_):
                 logger.debug('in-param with [inf/nan]',
                             stack_info=True,
                             stacklevel=2)
@@ -85,7 +88,7 @@ def check_model_param_infinite(model: nn.Module):
 
     has = False
     for name, param in model.parameters():
-        if __is_inf_or_nan(param):
+        if isnan(param):
             has = True
             logger.warning(' nan detect # %s', name)
 

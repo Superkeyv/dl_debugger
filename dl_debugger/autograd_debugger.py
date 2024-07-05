@@ -96,6 +96,7 @@ def register_bwd_hook_graph_node(node:torch.Tensor,
         return
     
     def bwd_hook(grad_inputs, grad_outputs):
+        assert BWD_HOOK_NODE_HM, "BWD_HOOK_NODE_HM can't be None"
         p1 = any_to_str(grad_inputs)
         p2 = any_to_str(grad_outputs)
         logger.debug(f' {name} # {p1} | {p2}')

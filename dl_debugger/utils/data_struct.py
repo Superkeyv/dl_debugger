@@ -46,7 +46,7 @@ def nested_merge(a, b):
     raise TypeError(f'not support type {type(a)} {type(b)}')
 
 
-def nested_check_tensor(value, fn: Callable):
+def check_nested_tensor_any(value, fn: Callable):
     """
     Args:
         value: check nested data which contain Tensor
@@ -63,16 +63,45 @@ def nested_check_tensor(value, fn: Callable):
     if isinstance(value, ListTuple):
         flag = False
         for v in value:
-            flag |= nested_check_tensor(v, fn)
+            flag |= check_nested_tensor_any(v, fn)
         return flag
 
     if isinstance(value, Mapping):
         flag = False
         for _, v in value.items():
-            flag |= nested_check_tensor(v, fn)
+            flag |= check_nested_tensor_any(v, fn)
         return flag
 
     return False
+
+
+def check_nested_tensor_all(value, fn: Callable):
+    """
+    Args:
+        value: check nested data which contain Tensor
+        fn: callable function, perform check
+            prtotype: fn(t: t.Tensor) -> bool
+
+    Return:
+        if fn return false once, the result is false
+    """
+
+    if isinstance(value, Tensor):
+        return fn(value)
+
+    if isinstance(value, ListTuple):
+        flag = True
+        for v in value:
+            flag &= check_nested_tensor_all(v, fn)
+        return flag
+
+    if isinstance(value, Mapping):
+        flag = True
+        for _, v in value.items():
+            flag &= check_nested_tensor_all(v, fn)
+        return flag
+
+    return True
 
 
 def flatten_nested_tensor_feat(obj, detail:bool=False) -> Dict[str, Any]:
