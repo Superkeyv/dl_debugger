@@ -21,11 +21,11 @@ python setup.py install
 
 ```python
 # 获取 异常值检测器
-from dl_debugger.assert_value import check_model_forward_infinite
+from dl_debugger.assert_value import register_check_model_fwd_nan
 
 model = GPT2()
 # insert hooks
-check_model_forward_infinite(model)
+register_check_model_fwd_nan(model)
 ```
 
 接下来可以正常执行模型训练，如果检测到 nan/inf 数值，则会立即打印堆栈信息，方便用户确定 nan/inf 的产生位置

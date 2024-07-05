@@ -7,12 +7,12 @@
 import torch
 import torch.nn as nn
 
-from dl_debugger.assert_value import check_model_forward_infinite
+from dl_debugger.assert_value import register_check_model_fwd_nan
 
 
 model = MTransformer(64, 512)
 # insert hooks
-check_model_forward_infinite(model)
+register_check_model_fwd_nan(model)
 
 optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3)
 loss_fn = nn.L1Loss()

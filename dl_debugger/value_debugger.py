@@ -28,15 +28,15 @@ check_nested_tensor_all_isfinite = partial(
 ################## define value check hook manager ##################
 HM = HookManager('inf nan check')
 
-def check_model_forward_infinite(model: nn.Module, only_training_module:bool=False):
+def register_check_model_fwd_nan(model: nn.Module, only_training_module:bool=False):
     """ check nan/inf appear at infer stage and print stack info.
     
     >>> model = ResNet50(...)
-    >>> check_model_forward_infinite(model)
+    >>> register_check_model_fwd_nan(model)
     >>> result = model(inp_x, inp_y)
     """
 
-    def __hook_check_isfinite(module, input_) -> None:
+    def __hook_check_isnan(module, input_) -> None:
         if only_training_module and not (
             module.training and torch.is_grad_enabled()
         ):
@@ -44,7 +44,7 @@ def check_model_forward_infinite(model: nn.Module, only_training_module:bool=Fal
         
         if isinstance(input_, ListTuple):
             for i, v in enumerate(input_):
-                if check_nested_tensor_any_isnan(v):
+                if check_nested_tensor_all_isfinite(v):
                     continue
                 logger.debug('in-param [%d] with [inf/nan]', i,
                              stack_info=True,
@@ -52,21 +52,21 @@ def check_model_forward_infinite(model: nn.Module, only_training_module:bool=Fal
                 sys.exit(1)
         if isinstance(input_, Mapping):
             for k, v in input_.items():
-                if check_nested_tensor_any_isnan(v):
+                if check_nested_tensor_all_isfinite(v):
                     continue
                 logger.debug('in-param [%s] with [inf/nan]', k,
                              stack_info=True,
                              stacklevel=2)
                 sys.exit(1)
         else:
-            if check_nested_tensor_any_isnan(input_):
+            if not check_nested_tensor_all_isfinite(input_):
                 logger.debug('in-param with [inf/nan]',
                             stack_info=True,
                             stacklevel=2)
                 sys.exit(1)
 
     for name, mod in model.named_modules():
-        hdl = mod.register_forward_pre_hook(__hook_check_isfinite)
+        hdl = mod.register_forward_pre_hook(__hook_check_isnan)
         HM.reg_handle(name, hdl)
 
     logger.info('value debugger hook number: %d', HM.get_handle_count())
