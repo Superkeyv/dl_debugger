@@ -45,9 +45,10 @@ def compare_over_folder(folder1, folder2):
         ret.to_csv(f1+'.csv')
 
 
-world_size = 2
+# assume 2 folder has same rank sub-folder
+folder1 = {p.split('-')[-1]: p for p in glob.glob(folder1+"/*-rk*")}
+folder2 = {p.split('-')[-1]: p for p in glob.glob(folder2+"/*-rk*")}
+folder_pair = [(folder1[rk], folder2[rk]) for rk in folder1]
 
-for rank in range(world_size):
-    suffix = f'-rk{rank}'
-    compare_over_folder(folder1+suffix,
-                        folder2+suffix)
+for f1, f2 in folder_pair:
+    compare_over_folder(f1, f2)
