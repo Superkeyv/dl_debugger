@@ -1,5 +1,6 @@
 """ check whether invalid value appear. """
 
+import re
 import sys
 import torch
 import torch.nn as nn
@@ -28,7 +29,9 @@ check_nested_tensor_all_isfinite = partial(
 ################## define value check hook manager ##################
 HM = HookManager('inf nan check')
 
-def register_check_model_fwd_nan(model: nn.Module, only_training_module:bool=False):
+def register_check_model_fwd_nan(model: nn.Module,
+                                 pattern:str='.*',
+                                 only_training_module:bool=False):
     """ check nan/inf appear at infer stage and print stack info.
     
     >>> model = ResNet50(...)
@@ -66,6 +69,9 @@ def register_check_model_fwd_nan(model: nn.Module, only_training_module:bool=Fal
                 sys.exit(1)
 
     for name, mod in model.named_modules():
+        if not re.fullmatch(pattern, name):
+            continue
+
         hdl = mod.register_forward_pre_hook(__hook_check_isnan)
         HM.reg_handle(name, hdl)
 
