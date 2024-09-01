@@ -1,3 +1,7 @@
+/*
+copyright ZJX
+*/
+
 #include <sys/types.h>
 #include <cuda_runtime_api.h>
 #include <iostream>

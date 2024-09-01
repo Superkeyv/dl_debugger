@@ -1,3 +1,5 @@
+# copyright ZJX
+
 """ collect and dump all data automatic. """
 
 import atexit
@@ -79,6 +81,9 @@ def _sync_info_during_run():
 
 
 def _save_tables(tables:dict, filepath):
+    """ We use parquet for better dumpfile size.
+        Once data format can't convert to table. we dump raw data by pickle
+    """
     
     def _dump_pkl_helper(obj, filename:str):
         with open(filename+'.pkl', 'wb') as f:

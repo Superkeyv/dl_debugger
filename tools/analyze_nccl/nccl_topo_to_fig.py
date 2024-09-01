@@ -1,3 +1,6 @@
+# copyright ZJX
+
+import math
 import matplotlib.pyplot as plt
 import networkx as nx
 import queue
@@ -49,9 +52,9 @@ def convert_xml_to_digraph(tree:NodeType):
             graph.add_edge(p_uid, c_uid, label=f'', edge_width='5')
 
             # connect nvlink to another pci device
-            if child.tag == 'nvlink':
-                target_uid = 'pci_' + child.get('target', 'null')
-                graph.add_edge(c_uid, target_uid, label=f'nvlink', edge_width='10')
+            # if child.tag == 'nvlink':
+            #     target_uid = 'pci_' + child.get('target', 'null')
+            #     graph.add_edge(c_uid, target_uid, label=f'nvlink', edge_width='10')
 
     return graph
 
@@ -62,7 +65,8 @@ def save_to_svg(graph: nx.DiGraph):
     fig.set_size_inches(FIG_WIDTH * 2,  FIG_WIDTH)
 
     ax.set_title(f"System topo")
-    pos = nx.kamada_kawai_layout(graph)
+    # 分成两张图绘制，一个是 pci 连接拓扑，另一个是 nvlink 连接拓扑
+    pos = nx.spring_layout(graph, k= 4/math.sqrt(graph.number_of_nodes()))
     nx.draw(graph, pos, ax=ax, with_labels=True,
             arrowsize=20, edge_color='green',
             font_weight='bold', font_size=8,

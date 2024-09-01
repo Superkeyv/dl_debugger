@@ -1,3 +1,5 @@
+# copyright ZJX
+
 """ check whether invalid value appear. """
 
 import re

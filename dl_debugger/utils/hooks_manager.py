@@ -1,3 +1,5 @@
+# copyright ZJX
+
 """ manage hook generate by torch.hook, and record need info from hook """
 
 import pickle

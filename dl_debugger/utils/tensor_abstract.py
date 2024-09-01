@@ -1,3 +1,6 @@
+# copyright ZJX
+
+import numpy as np
 import torch
 
 from torch import Tensor
@@ -24,7 +27,7 @@ def _tensor_hash_stage2(feat:Tensor) -> Tensor:
 def tensor_hash(t:Tensor) -> float:
     """ mapping a any tensor to float."""
     if t.numel() == 0:
-        return None
+        return np.nan
     if t.numel() == 1:
         return t.item()
 
@@ -38,7 +41,7 @@ def tensor_hash(t:Tensor) -> float:
 def tensor_fingerprint(t:Tensor) -> Dict[str, float]:
     """ use serveral floats describe a tensor"""
     if t.numel() == 0:
-        return None
+        return {}
 
     t = t.to(torch.float32)
     t_min, t_max = t.aminmax()
@@ -50,5 +53,5 @@ def tensor_fingerprint(t:Tensor) -> Dict[str, float]:
         'max': t_max.item(),
         'mean': t_mean.item(),
         'norm': t_norm.item(),
-        'hash': t_hash.item(),
+        'hash': t_hash,
     }

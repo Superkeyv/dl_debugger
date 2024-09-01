@@ -1,3 +1,5 @@
+# copyright ZJX
+
 import copy
 
 from torch import Tensor

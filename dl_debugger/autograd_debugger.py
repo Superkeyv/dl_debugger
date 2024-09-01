@@ -1,3 +1,5 @@
+# copyright ZJX
+
 """ insert hook for model to check forward and backward details."""
 
 import functools

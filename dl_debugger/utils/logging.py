@@ -1,3 +1,5 @@
+# copyright ZJX
+
 """ Init log env. """
 
 import logging

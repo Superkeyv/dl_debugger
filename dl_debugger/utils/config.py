@@ -1,3 +1,5 @@
+# copyright ZJX
+
 import os
 
 DLSAN_LOG_LEVEL = os.environ.get('DLSAN_LOG_LEVEL', 'info')

@@ -1,3 +1,5 @@
+# copyright ZJX
+
 from .data_struct import (
     ListTuple, nested_merge, check_nested_tensor_any, check_nested_tensor_all,
 )

@@ -1,3 +1,5 @@
+# copyright ZJX
+
 import numpy as np
 import torch
 

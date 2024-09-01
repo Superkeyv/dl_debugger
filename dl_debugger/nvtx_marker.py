@@ -1,3 +1,5 @@
+# copyright ZJX
+
 """ auto mark nvtx for every module."""
 
 import functools

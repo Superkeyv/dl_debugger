@@ -1,3 +1,5 @@
+# copyright ZJX
+
 import os
 import pathlib
 

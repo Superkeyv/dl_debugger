@@ -1,3 +1,5 @@
+# copyright ZJX
+
 """ Convert any struct to String. """
 
 import torch
