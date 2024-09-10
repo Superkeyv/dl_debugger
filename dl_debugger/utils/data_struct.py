@@ -106,7 +106,16 @@ def check_nested_tensor_all(value, fn: Callable):
     return True
 
 
-def flatten_nested_tensor_feat(obj, detail:bool=False) -> Dict[str, Any]:
+def _flatten_nested_tensor(obj,
+                           abstract_level:int=0,
+                           only_tensor:bool=False) -> Dict[str, Any]:
+    """ flatten a nested struct to [str, value] pair
+    
+    We have 3 abstract level (higher is simple):
+        0. convert and dump raw tensor to cpu
+        1. record tensor's fingerprint
+        2. only record tensor's hash
+    """
     rp = {}
     def _flatten_helper(obj, name_list:list):
         prefix = '.'.join(name_list)
@@ -117,31 +126,27 @@ def flatten_nested_tensor_feat(obj, detail:bool=False) -> Dict[str, Any]:
             for i, v in enumerate(obj):
                 _flatten_helper(v, name_list+[str(i)])
         elif isinstance(obj, Tensor):
-            if detail:
+            if abstract_level == 0:
+                rp[prefix+'.tensor'] = obj.detach().cpu()
+            elif abstract_level == 1:
                 _flatten_helper(tensor_fingerprint(obj), name_list+['tensor'])
-            else:
+            elif abstract_level == 2:
                 rp[prefix+'.tensor'] = tensor_hash(obj)
-        elif isinstance(obj, (float, int)) and not isinstance(obj, bool):
-            rp[prefix+'.num'] = obj
+        elif not only_tensor:
+            if isinstance(obj, bool):
+                rp[prefix+'.bool'] = obj
+            elif isinstance(obj, (float, int)):
+                rp[prefix+'.num'] = obj
+            elif isinstance(obj, str):
+                rp[prefix+'.str'] = obj
 
     _flatten_helper(obj, [])
     return rp
+
+
+def flatten_nested_tensor_feat(obj, detail:bool=False) -> Dict[str, Any]:
+    return _flatten_nested_tensor(obj, abstract_level=1 if detail else 2)
 
 
 def flatten_nested_tensor_cpu(obj) -> Dict[str, Tensor]:
-    rp = {}
-    def _flatten_helper(obj, name_list:list):
-        prefix = '.'.join(name_list)
-        if isinstance(obj, Mapping):
-            for k, v in obj.items():
-                _flatten_helper(v, name_list+[str(k)])
-        elif isinstance(obj, ListTuple):
-            for i, v in enumerate(obj):
-                _flatten_helper(v, name_list+[str(i)])
-        elif isinstance(obj, Tensor):
-            rp[prefix] = obj.detach().cpu()
-        elif isinstance(obj, (float, int)) and not isinstance(obj, bool):
-            rp[prefix] = obj
-
-    _flatten_helper(obj, [])
-    return rp
+    return _flatten_nested_tensor(obj, abstract_level=0, only_tensor=False)

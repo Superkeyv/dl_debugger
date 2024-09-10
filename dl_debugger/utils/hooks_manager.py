@@ -69,10 +69,8 @@ class HookManager:
                       'wb') as f:
                 pickle.dump(row, f)
             return
-        elif DLSAN_DUMP_TENSOR_DETAIL:
-            row = flatten_nested_tensor_feat(row, True)
         else:
-            row = flatten_nested_tensor_feat(row, False)
+            row = flatten_nested_tensor_feat(row, DLSAN_DUMP_TENSOR_DETAIL)
         append_row_to_table(self._table, row)
 
     def get_handle_count(self) -> int:

@@ -20,7 +20,8 @@ def register_fwd_hook(model:torch.nn.Module,
             module.training and torch.is_grad_enabled()
         ):
             return
-
+        
+        # TODO need fix, when args has varlen list or dict
         p1 = any_to_str(args)
         p2 = any_to_str(kwargs)
         p3 = any_to_str(output)
