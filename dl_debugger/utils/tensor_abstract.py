@@ -31,7 +31,10 @@ def tensor_hash(t:Tensor) -> float:
     if t.numel() == 1:
         return t.item()
 
-    t = t.to(torch.float32)
+    # Convert dtype to float32 may introduces additional precision errors,
+    # so we use default precision
+    if not t.is_floating_point():
+        t = t.float()
     t = _tensor_hash_stage1(t)
     t = _tensor_hash_stage2(t)
     return t.item()

@@ -4,10 +4,18 @@
 
 import torch
 
+from collections import defaultdict
 from typing import Mapping
 
 from .data_struct import ListTuple
 from .tensor_abstract import tensor_hash
+
+
+def tensor_dtype_to_str(t:torch.Tensor) -> str:
+    """ convert tensor's dtype to str type. 
+        For example torch.float32 -> 'float32'.
+    """
+    return str(t.dtype).strip('torch.')
 
 
 def tensor_to_str(t:torch.Tensor) -> str:

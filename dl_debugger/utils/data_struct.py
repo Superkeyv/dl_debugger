@@ -5,6 +5,7 @@ import copy
 from torch import Tensor
 from typing import Mapping, Tuple, Callable, List, Any, Dict
 
+from .string import tensor_dtype_to_str
 from .tensor_abstract import tensor_hash, tensor_fingerprint
 
 
@@ -126,12 +127,14 @@ def _flatten_nested_tensor(obj,
             for i, v in enumerate(obj):
                 _flatten_helper(v, name_list+[str(i)])
         elif isinstance(obj, Tensor):
+            s_dtype = tensor_dtype_to_str(obj)
+            prefix_type = prefix+'.tensor.'+s_dtype
             if abstract_level == 0:
-                rp[prefix+'.tensor'] = obj.detach().cpu()
+                rp[prefix_type] = obj.detach().cpu()
             elif abstract_level == 1:
-                _flatten_helper(tensor_fingerprint(obj), name_list+['tensor'])
+                _flatten_helper(tensor_fingerprint(obj), name_list+['tensor', s_dtype])
             elif abstract_level == 2:
-                rp[prefix+'.tensor'] = tensor_hash(obj)
+                rp[prefix_type] = tensor_hash(obj)
         elif not only_tensor:
             if isinstance(obj, bool):
                 rp[prefix+'.bool'] = obj
