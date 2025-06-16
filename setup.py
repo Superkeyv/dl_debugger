@@ -10,7 +10,7 @@ def __get_version():
             if line.startswith('__version__'):
                 g = {}
                 exec(line, g)
-                return g['__version']
+                return g['__version__']
         raise ValueError(
             '`__version__` not defined in dl_debugger/__init__.py'
         )
@@ -28,13 +28,13 @@ setup(
     url='',
     license='Apache 2.0',
     author='Zhang Jingxu',
-    description='dl-debugger is a debug tool for artifial neural network.'
+    description='dl-debugger is a debug tool for artifial neural network.',
     long_description=open('README.md', encoding='utf-8').read(),
     long_description_content_type='text/markdown',
     author_email='up_and_up_zjx@outlook.com',
     # contained modules and scripts.
     packages=find_namespace_packages(exclude=['*.text.py', 'examples']),
-    install_require=__parse_requirements('requirements.txt')
+    install_require=__parse_requirements('requirements.txt'),
     extras_require={},
     include_package_data=True,
     zip_safe=False,
